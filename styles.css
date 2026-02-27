@@ -564,6 +564,14 @@
     .opts-grid .info-row {
       display: contents;
     }
+    /* Keybind key cell — left column for kbd combos */
+    .kbd-cell {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
 
     /* ─── Loading State ─── */
     .loading-state {
