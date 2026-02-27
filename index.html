@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wordle Solver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ─── Header ─── -->
+  <header class="header">
+    <span class="header-title">Wordle Solver</span>
+    <span class="header-dot"></span>
+    <span class="header-sub">entropy engine</span>
+
+    <div class="header-icon-group">
+      <!-- Options button -->
+      <button class="icon-btn" id="btnOpts" title="Options">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+          <rect x="0" y="1.5" width="5" height="1.5" rx="0.5"/>
+          <rect x="7" y="1.5" width="5" height="1.5" rx="0.5"/>
+          <circle cx="6" cy="2.25" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <rect x="0" y="5.25" width="3" height="1.5" rx="0.5"/>
+          <rect x="5" y="5.25" width="7" height="1.5" rx="0.5"/>
+          <circle cx="4" cy="6" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <rect x="0" y="9" width="7" height="1.5" rx="0.5"/>
+          <rect x="9" y="9" width="3" height="1.5" rx="0.5"/>
+          <circle cx="8" cy="9.75" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+      </button>
+      <!-- Debug button -->
+      <button class="icon-btn" id="btnDbg" title="Debug view">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="2,3 0,6 2,9"/>
+          <polyline points="10,3 12,6 10,9"/>
+          <line x1="4.5" y1="1.5" x2="7.5" y2="10.5"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="header-tags">
+      <span class="setting-tag" id="tagHardMode" title="Hard Mode">HARD MODE</span>
+      <span class="setting-tag" id="tagLookahead" title="2-ply Lookahead">2PLY</span>
+      <span class="setting-tag" id="tagUrgency" title="Guesses-Left Urgency">URG</span>
+      <span class="setting-tag" id="tagMinimax" title="Minimax (Worst-Case)">MINIMAX</span>
+    </div>
+
+    <span class="guesses-left-badge" id="guessesLeftBadge">6 / 6 GUESSES</span>
+  </header>
+
+  <!-- Options float panel -->
+  <div class="float-panel opt-panel" id="panelOpts" style="left:28px">
+    <div class="opt-panel-title">Solver Options</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="toggle-label">Hard Mode</span>
+        <span class="toggle-desc">Restrict next-guess candidates to words that use all revealed green &amp; yellow letters — matching real Wordle hard mode rules.</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="optHardMode" autocomplete="off" />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="toggle-label">2-ply Lookahead</span>
+        <span class="toggle-desc">Score each guess by also simulating the optimal follow-up, not just the current split. Slower but more accurate on ≤150 candidates.</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="optLookahead" autocomplete="off" checked />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="toggle-label">Guesses-Left Urgency</span>
+        <span class="toggle-desc">Boost possible-answer words when guesses are running low relative to remaining candidates.</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="optUrgency" autocomplete="off" checked />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <span class="toggle-label">Minimax (Worst-Case)</span>
+        <span class="toggle-desc">Rank guesses by minimising the largest possible remaining bucket — guarantees the best worst-case outcome instead of the best average. Overrides entropy scoring.</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="optMinimax" autocomplete="off" />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div class="slider-row">
+      <div class="toggle-info">
+        <span class="toggle-label">Contrast</span>
+        <span class="toggle-desc">Adjust UI contrast — move left for softer, right for crisper.</span>
+      </div>
+      <div class="slider-wrap">
+        <span class="slider-label">Low</span>
+        <input type="range" id="optContrast" min="0" max="100" value="50" step="1" class="contrast-slider" autocomplete="off" />
+        <span class="slider-label">High</span>
+      </div>
+    </div>
+    <div class="slider-row">
+      <div class="toggle-info">
+        <span class="toggle-label">Saturation</span>
+        <span class="toggle-desc">Adjust colour intensity of green, yellow &amp; red indicators.</span>
+      </div>
+      <div class="slider-wrap">
+        <span class="slider-label">Muted</span>
+        <input type="range" id="optSaturation" min="0" max="100" value="50" step="1" class="contrast-slider" autocomplete="off" />
+        <span class="slider-label">Vivid</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debug float panel -->
+  <div class="float-panel dbg-panel" id="panelDbg" style="right:28px">
+    <div class="dbg-header-row">
+      <span class="dbg-title">Debug</span>
+      <span class="dbg-badge" id="dbgModeBadge">idle</span>
+    </div>
+    <div id="dbgContent"><span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim)">Run an analysis to see debug info.</span></div>
+  </div>
+
+  <!-- ─── Main ─── -->
+  <main class="main">
+    <div class="solver-layout">
+
+      <!-- ═══ Left Panel ═══ -->
+      <div class="left-panel panel">
+        <div class="panel-title">Your Guesses</div>
+
+        <div class="guesses-container" id="guessesContainer">
+          <!-- Rows injected by JS -->
+        </div>
+
+        <div class="input-area">
+          <input
+            type="text"
+            class="word-input"
+            id="wordInput"
+            maxlength="5"
+            placeholder="Type a 5-letter guess…"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+          />
+          <button class="btn-analyze" id="btnAnalyze" disabled>
+            Analyze Guess →
+          </button>
+          <div class="bottom-row">
+            <button class="btn-undo" id="btnUndo" disabled title="Undo last guess">← Undo</button>
+            <button class="btn-reset" id="btnReset">↺ &nbsp; Reset</button>
+          </div>
+        </div>
+
+        <!-- Known letters display -->
+        <div class="known-strip" id="knownStrip" style="display:none">
+          <span class="known-label">Known info</span>
+          <!-- chips injected by JS -->
+        </div>
+      </div>
+
+      <!-- ═══ Right Panel ═══ -->
+      <div class="right-panel panel" id="rightPanel">
+        <!-- Placeholder before any analysis -->
+        <div class="placeholder-state" id="placeholderState">
+          <div class="placeholder-icon">🟩</div>
+          <p class="placeholder-text">
+            Type a guess, set tile colours,<br>then click <strong>Analyze</strong>.
+          </p>
+          <p class="placeholder-sub">entropy · 12972 words</p>
+
+          <div class="info-grid">
+            <div class="info-section opts-grid">
+              <span class="info-section-title">Options</span>
+              <div class="info-row">
+                <span class="info-tag">HARD MODE</span>
+                <span class="info-desc">Next guess must use all revealed green &amp; yellow letters.</span>
+              </div>
+              <div class="info-row">
+                <span class="info-tag">2PLY</span>
+                <span class="info-desc">Simulates the best follow-up too. More accurate on small candidate sets, slightly slower.</span>
+              </div>
+              <div class="info-row">
+                <span class="info-tag">URG</span>
+                <span class="info-desc">Boosts likely answers when guesses are running low relative to remaining candidates.</span>
+              </div>
+              <div class="info-row">
+                <span class="info-tag">MINIMAX</span>
+                <span class="info-desc">Picks the guess with the smallest worst-case bucket instead of the best average split.</span>
+              </div>
+            </div>
+
+            <div class="info-section">
+              <span class="info-section-title">Tips</span>
+              <div class="info-row">
+                <span class="info-tip-dot"></span>
+                <span class="info-desc">Click any word in <strong>Best Next Guesses</strong> to instantly load it into the input.</span>
+              </div>
+              <div class="info-row">
+                <span class="info-tip-dot"></span>
+                <span class="info-desc">Enable <strong>Hard Mode</strong> once you have 2+ known letters to cut the candidate list quickly.</span>
+              </div>
+              <div class="info-row">
+                <span class="info-tip-dot"></span>
+                <span class="info-desc">Use <strong>Minimax</strong> with ≤4 guesses left to guarantee a safe worst-case outcome.</span>
+              </div>
+              <div class="info-row">
+                <span class="info-tip-dot"></span>
+                <span class="info-desc"><strong>Ctrl+Z</strong> undoes the last submitted guess.</span>
+              </div>
+              <div class="info-row">
+                <span class="info-tip-dot"></span>
+                <span class="info-desc"><strong>Shift+T</strong> toggles this tips page at any time.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results (hidden until analysis) -->
+        <div id="resultsArea"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ─── Footer ─── -->
+  <footer class="footer">
+    <span class="footer-credit">wordle solver — shannon entropy</span>
+  </footer>
+
+  <!-- ─── Word Data ─── -->
+  <script src="words.js"></script>
+
+  <!-- ─── App Logic ─── -->
+  <script src="script.js">
+  </script>
+</body>
+</html>
