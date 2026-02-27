@@ -144,14 +144,20 @@
         btn.classList.add('active');
       }
     }
-    btnOpts.addEventListener('click', () => togglePanel(btnOpts, panelOpts));
-    btnDbg.addEventListener('click',  () => togglePanel(btnDbg,  panelDbg));
+    btnOpts.addEventListener('click', () => {
+      const isOpen = panelOpts.classList.contains('open');
+      panelOpts.classList.toggle('open', !isOpen);
+      btnOpts.classList.toggle('active', !isOpen);
+    });
+    btnDbg.addEventListener('click', () => {
+      const isOpen = panelDbg.classList.contains('open');
+      panelDbg.classList.toggle('open', !isOpen);
+      btnDbg.classList.toggle('active', !isOpen);
+    });
     document.addEventListener('click', e => {
       if (!e.target.closest('.float-panel') && !e.target.closest('.icon-btn') && !e.target.closest('.btn-open-opts')) {
         panelOpts.classList.remove('open');
-        panelDbg.classList.remove('open');
         btnOpts.classList.remove('active');
-        btnDbg.classList.remove('active');
       }
     });
     function applyHardModeTag(on) { /* handled by CSS :has() */ }
