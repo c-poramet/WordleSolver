@@ -147,7 +147,7 @@
     btnOpts.addEventListener('click', () => togglePanel(btnOpts, panelOpts));
     btnDbg.addEventListener('click',  () => togglePanel(btnDbg,  panelDbg));
     document.addEventListener('click', e => {
-      if (!e.target.closest('.float-panel') && !e.target.closest('.icon-btn')) {
+      if (!e.target.closest('.float-panel') && !e.target.closest('.icon-btn') && !e.target.closest('.btn-open-opts')) {
         panelOpts.classList.remove('open');
         panelDbg.classList.remove('open');
         btnOpts.classList.remove('active');

@@ -569,6 +569,27 @@
     .opts-grid .info-row {
       display: contents;
     }
+    .btn-open-opts {
+      grid-column: 1 / -1;
+      justify-self: center;
+      margin-top: 6px;
+      padding: 5px 16px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-sec);
+      background: var(--surface);
+      border: 1px solid var(--border-md);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-open-opts:hover {
+      color: var(--text-pri);
+      border-color: rgba(255,255,255,0.35);
+    }
     /* Keybind key cell — left column for kbd combos */
     .kbd-cell {
       display: inline-flex;
