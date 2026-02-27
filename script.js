@@ -233,14 +233,18 @@
         tile.textContent = letter.toUpperCase();
 
         // Reset classes
-        tile.classList.remove('has-letter','state-gray','state-yellow','state-green','auto-gray');
+        tile.classList.remove('has-letter','state-gray','state-yellow','state-green','auto-gray','auto-green');
 
         if (!letter) { continue; }
 
         tile.classList.add('has-letter');
 
+        // Auto-green if letter matches confirmed green at this position
+        if (knownGreen[i] && letter === knownGreen[i]) {
+          tile.classList.add('auto-green');
+          currentColors[i] = 'green';
         // Auto-gray if letter is known gray (from past guesses)
-        if (knownGray.has(letter) && currentColors[i] !== 'green' && currentColors[i] !== 'yellow') {
+        } else if (knownGray.has(letter) && currentColors[i] !== 'green' && currentColors[i] !== 'yellow') {
           tile.classList.add('auto-gray');
           currentColors[i] = 'gray';
         } else {
@@ -305,6 +309,10 @@
         if (val[i] && knownGray.has(val[i])) {
           currentColors[i] = 'gray';
         }
+        // If letter matches a confirmed green at this position, auto-set green
+        if (val[i] && knownGreen[i] && val[i] === knownGreen[i]) {
+          currentColors[i] = 'green';
+        }
       }
 
       prevWord    = val;
@@ -316,7 +324,7 @@
       const i = pos1Based - 1;
       if (!currentWord[i]) return;
       const tile = document.getElementById(`tile-${submittedGuesses.length}-${i}`);
-      if (!tile || tile.classList.contains('auto-gray')) return;
+      if (!tile || tile.classList.contains('auto-gray') || tile.classList.contains('auto-green')) return;
       const cycle = { gray: 'yellow', yellow: 'green', green: 'gray' };
       currentColors[i] = cycle[currentColors[i]] || 'gray';
       refreshActiveTiles();

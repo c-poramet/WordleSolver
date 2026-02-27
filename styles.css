@@ -215,15 +215,23 @@
       cursor: default;
     }
     .tile.auto-gray:hover { transform: none; }
+    .tile.auto-green {
+      background: var(--clr-green);
+      border-color: var(--clr-green);
+      color: #fff;
+      opacity: 0.72;
+      cursor: default;
+    }
+    .tile.auto-green:hover { transform: none; }
     /* Locked tiles (submitted rows) */
     .locked .tile { cursor: default; }
     .locked .tile:hover { transform: none; }
     /* Clickable tiles hover */
-    .tile.has-letter:not(.auto-gray):hover {
+    .tile.has-letter:not(.auto-gray):not(.auto-green):hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
-    .tile.has-letter:not(.auto-gray):active {
+    .tile.has-letter:not(.auto-gray):not(.auto-green):active {
       transform: translateY(0);
     }
 
